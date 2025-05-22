@@ -10,7 +10,7 @@ from networks import MLP, CNN, fit
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-num_epochs', type=int, default=30)
+	parser.add_argument('-num_epochs', type=int, default=10)
 	parser.add_argument('-dataset', type=str, default='cifar')
 	parser.add_argument('-num_train', type=int, default=50000)
 	parser.add_argument('-num_val', type=int, default=2048)

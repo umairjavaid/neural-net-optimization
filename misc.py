@@ -287,7 +287,11 @@ def load_losses(dataset:str, filename:str):
 	try:
 		with open(f'losses_{dataset}/{filename}.pkl', 'rb') as f:
 			return pkl.load(f)
-	except:
+	except FileNotFoundError:
+		print(f"File losses_{dataset}/{filename}.pkl not found")
+		return None
+	except Exception as e:
+		print(f"Error loading {filename}: {e}")
 		return None
 
 

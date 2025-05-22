@@ -15,7 +15,7 @@ if __name__ == '__main__':
 	parser.add_argument('-num_train', type=int, default=50000)
 	parser.add_argument('-num_val', type=int, default=2048)
 	parser.add_argument('-lr_schedule', action='store_true', default=True)
-	parser.add_argument('-only_plot', type=str, default='True')  # Change to string type
+	parser.add_argument('-only_plot', type=str, default='False')  # Changed default to False to run training
 	parser.add_argument('-batch_size', type=int, default=256, help='Training batch size')
 	parser.add_argument('-num_workers', type=int, default=4, help='Number of data loading workers')
 	parser.add_argument('-no_mixed_precision', action='store_true', help='Disable mixed precision training')
@@ -46,6 +46,9 @@ if __name__ == '__main__':
 	)
 
 	print(f'Loaded data partitions: ({len(data[0])}), ({len(data[1])})')
+	
+	# Print whether we're training or just plotting
+	print(f"Mode: {'Plotting only' if args.only_plot else 'Training and plotting'}")
 	
 	opt_tasks = [
 		'sgd',

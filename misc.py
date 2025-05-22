@@ -256,9 +256,22 @@ class Dataset(data.Dataset):
 
 
 def save_losses(losses, dataset:str, filename:str):
-	if not os.path.exists(f'losses_{dataset}/'): os.makedirs(f'losses_{dataset}/')
-	with open(f'losses_{dataset}/{filename}.pkl', 'wb') as f:
-		pkl.dump(losses, f, protocol=pkl.HIGHEST_PROTOCOL)
+	import os
+	dir_path = f'losses_{dataset}/'
+	if not os.path.exists(dir_path): 
+		try:
+			os.makedirs(dir_path)
+			print(f"Created directory: {dir_path}")
+		except Exception as e:
+			print(f"Error creating directory {dir_path}: {e}")
+			return
+	
+	try:
+		with open(f'{dir_path}/{filename}.pkl', 'wb') as f:
+			pkl.dump(losses, f, protocol=pkl.HIGHEST_PROTOCOL)
+		print(f"Successfully saved {filename} to {dir_path}")
+	except Exception as e:
+		print(f"Error saving {filename}: {e}")
 
 
 def load_losses(dataset:str, filename:str):

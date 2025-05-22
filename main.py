@@ -14,9 +14,15 @@ if __name__ == '__main__':
 	parser.add_argument('-dataset', type=str, default='cifar')
 	parser.add_argument('-num_train', type=int, default=50000)
 	parser.add_argument('-num_val', type=int, default=2048)
-	parser.add_argument('-lr_schedule', type=bool, default=True)
-	parser.add_argument('-only_plot', type=bool, default=True)
+	parser.add_argument('-lr_schedule', action='store_true', default=True)
+	parser.add_argument('-only_plot', type=str, default='True')  # Change to string type
 	args = parser.parse_args()
+
+	# Convert string to boolean values
+	if isinstance(args.only_plot, str):
+		args.only_plot = args.only_plot.lower() != 'false'
+	if isinstance(args.lr_schedule, str) and args.lr_schedule.lower() == 'false':
+		args.lr_schedule = False
 
 	data = getattr(misc, 'load_'+args.dataset)(
 		num_train=args.num_train,
@@ -62,18 +68,27 @@ if __name__ == '__main__':
 		return fit(net, data, optimizer, num_epochs=args.num_epochs, lr_schedule=True)
 
 	for opt in opt_tasks:
-		if args.only_plot:
-			losses = misc.load_losses(dataset=args.dataset, filename=opt)
-			val_losses = misc.load_losses(dataset=args.dataset, filename=opt+'_val')
-		else:
-			losses, val_losses = do_stuff(opt)
-			misc.save_losses(losses, dataset=args.dataset, filename=opt)
-			misc.save_losses(val_losses, dataset=args.dataset, filename=opt+'_val')
+		try:
+			print(f"Processing optimizer: {opt}")
+			if args.only_plot:
+				losses = misc.load_losses(dataset=args.dataset, filename=opt)
+				val_losses = misc.load_losses(dataset=args.dataset, filename=opt+'_val')
+			else:
+				print(f"Starting training for {opt}...")
+				losses, val_losses = do_stuff(opt)
+				print(f"Training completed for {opt}, saving results...")
+				misc.save_losses(losses, dataset=args.dataset, filename=opt)
+				misc.save_losses(val_losses, dataset=args.dataset, filename=opt+'_val')
+				print(f"Results saved for {opt}")
 
-		if losses is not None:
-			opt_losses.append(losses)
-			opt_val_losses.append(val_losses)
-			opt_labels.append(misc.split_optim_dict(misc.optim_dict[opt])[0])
+			if losses is not None:
+				opt_losses.append(losses)
+				opt_val_losses.append(val_losses)
+				opt_labels.append(misc.split_optim_dict(misc.optim_dict[opt])[0])
+		except Exception as e:
+			print(f"Error processing {opt}: {str(e)}")
+			import traceback
+			traceback.print_exc()
 
 	if not torch.cuda.is_available():
 		assert len(opt_losses) == len(opt_val_losses)

@@ -21,7 +21,13 @@ class MLP(nn.Module):
 		self.W_2 = Parameter(init.xavier_normal_(torch.Tensor(num_outputs, num_hidden)))
 		self.b_2 = Parameter(init.constant_(torch.Tensor(num_outputs), 0))
 
+		if torch.cuda.is_available():
+			self.cuda()
+
 	def forward(self, x):
+		if torch.cuda.is_available():
+			x = x.cuda()
+            
 		x = F.relu(F.linear(x, self.W_1, self.b_1))
 		x = F.linear(x, self.W_2, self.b_2)
 
@@ -65,10 +71,15 @@ class CNN(nn.Module):
 		return self.out_lin(x)
 
 
-def fit(net, data, optimizer, batch_size=128, num_epochs=250, lr_schedule=False):
+def fit(net, data, optimizer, batch_size=64, num_epochs=250, lr_schedule=False):
 	"""
 	Fits parameters of a network `net` using `data` as training data and a given `optimizer`.
 	"""
+	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+	print(f"Using device: {device}")
+	
+	net = net.to(device)
+	
 	train_generator = utils.data.DataLoader(data[0], batch_size=batch_size)
 	val_generator = utils.data.DataLoader(data[1], batch_size=batch_size)
 
@@ -90,8 +101,8 @@ def fit(net, data, optimizer, batch_size=128, num_epochs=250, lr_schedule=False)
 		# Calculate validation loss and accuracy
 		with torch.no_grad():
 			for x, y in val_generator:
-				y = y.type(torch.LongTensor)
-				if torch.cuda.is_available(): y = y.cuda()
+				x = x.to(device)
+				y = y.type(torch.LongTensor).to(device)
 				outputs = net(x)
 				epoch_val_loss += F.cross_entropy(outputs, y).cpu()
 				
@@ -105,8 +116,8 @@ def fit(net, data, optimizer, batch_size=128, num_epochs=250, lr_schedule=False)
 		train_total = 0
 		
 		for x, y in train_generator:
-			y = y.type(torch.LongTensor)
-			if torch.cuda.is_available(): y = y.cuda()
+			x = x.to(device)
+			y = y.type(torch.LongTensor).to(device)
 			
 			# Forward pass
 			outputs = net(x)

@@ -1,6 +1,6 @@
 # Optimization for Deep Learning
 
-This repository contains PyTorch implementations of popular/recent optimization algorithms for deep learning, including SGD, SGD w/ momentum, SGD w/ Nesterov momentum, SGDW, RMSprop, Adam, Nadam, Adam w/ L2 regularization, AdamW, RAdam, RAdamW, Gradient Noise, Gradient Dropout, Learning Rate Dropout and Lookahead.
+This repository contains PyTorch implementations of popular/recent optimization algorithms for deep learning, including SGD, SGD w/ momentum, SGD w/ Nesterov momentum, SGDW, RMSprop, Adam, Nadam, Adam w/ L2 regularization, AdamW, RAdam, RAdamW, Gradient Noise, Gradient Dropout, Learning Rate Dropout, Lookahead, and TALT (Topology-Aware Learning Trajectory).
 
 All extensions have been implemented such that it allows for mix-and-match optimization, e.g. you can train a neural net using RAdamW with both Nesterov momentum, Gradient Noise, Learning Rate Dropout and Lookahead.
 

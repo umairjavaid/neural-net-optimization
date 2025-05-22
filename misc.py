@@ -103,6 +103,27 @@ optim_dict = {
 		'graddropout_adam': {
 			'label': 'Gradient Dropout (Adam)',
 			'lr': 1e-3
+		},
+		'talt': {
+			'label': 'TALT',
+			'lr': 1e-3,
+			'beta1': 0.9,
+			'beta2': 0.999,
+			'projection_dim': 32,
+			'update_interval': 20,
+			'valley_strength': 0.2,
+			'smoothing_factor': 0.3
+		},
+		'talt_lrd': {
+			'label': 'TALT w/ LRD',
+			'lr': 1e-3,
+			'beta1': 0.9,
+			'beta2': 0.999,
+			'projection_dim': 32,
+			'update_interval': 20,
+			'valley_strength': 0.2,
+			'smoothing_factor': 0.3,
+			'lrd': 0.5
 		}
 	}
 
@@ -163,6 +184,8 @@ def task_to_optimizer(task:str) -> torch.optim.Optimizer:
 		optimizer = getattr(optimizers, 'Adam')
 	if 'rmsprop' in task.lower():
 		optimizer = getattr(optimizers, 'RMSProp')
+	if 'talt' in task.lower():
+		optimizer = getattr(optimizers, 'TALT')
 	
 	if optimizer is None:
 		raise ValueError(f'Optimizer for task \'{task}\' was not recognized!')

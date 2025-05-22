@@ -43,7 +43,9 @@ if __name__ == '__main__':
 		'lookahead_sgd',
 		'lookahead_adam',
 		'gradnoise_adam',
-		'graddropout_adam'
+		'graddropout_adam',
+		'talt',           # Add TALT optimizer
+		'talt_lrd'        # Add TALT with Learning Rate Dropout
 	]
 	opt_losses, opt_val_losses, opt_labels = [], [], []
 

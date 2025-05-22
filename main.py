@@ -16,6 +16,11 @@ if __name__ == '__main__':
 	parser.add_argument('-num_val', type=int, default=2048)
 	parser.add_argument('-lr_schedule', action='store_true', default=True)
 	parser.add_argument('-only_plot', type=str, default='True')  # Change to string type
+	parser.add_argument('-batch_size', type=int, default=256, help='Training batch size')
+	parser.add_argument('-num_workers', type=int, default=4, help='Number of data loading workers')
+	parser.add_argument('-no_mixed_precision', action='store_true', help='Disable mixed precision training')
+	parser.add_argument('-gradient_accumulation_steps', type=int, default=1, help='Number of steps for gradient accumulation')
+	parser.add_argument('-no_monitor_memory', action='store_true', help='Disable GPU memory monitoring')
 	args = parser.parse_args()
 
 	# Convert string to boolean values
@@ -23,6 +28,17 @@ if __name__ == '__main__':
 		args.only_plot = args.only_plot.lower() != 'false'
 	if isinstance(args.lr_schedule, str) and args.lr_schedule.lower() == 'false':
 		args.lr_schedule = False
+	
+	# Check if CUDA is available
+	if torch.cuda.is_available():
+		print(f"CUDA available: {torch.cuda.is_available()}")
+		print(f"CUDA device count: {torch.cuda.device_count()}")
+		print(f"Current CUDA device: {torch.cuda.current_device()}")
+		print(f"CUDA device name: {torch.cuda.get_device_name(0)}")
+		print(f"Total GPU memory: {torch.cuda.get_device_properties(0).total_memory / (1024**3):.2f} GB")
+	else:
+		print("CUDA not available, using CPU.")
+		args.no_mixed_precision = True
 
 	data = getattr(misc, 'load_'+args.dataset)(
 		num_train=args.num_train,
@@ -65,7 +81,19 @@ if __name__ == '__main__':
 		)
 		optimizer = misc.wrap_optimizer(opt, optimizer)
 
-		return fit(net, data, optimizer, num_epochs=args.num_epochs, lr_schedule=True)
+		return fit(
+			net, 
+			data, 
+			optimizer, 
+			batch_size=args.batch_size,
+			num_epochs=args.num_epochs, 
+			lr_schedule=args.lr_schedule,
+			num_workers=args.num_workers,
+			pin_memory=torch.cuda.is_available(),
+			mixed_precision=not args.no_mixed_precision,
+			gradient_accumulation_steps=args.gradient_accumulation_steps,
+			monitor_memory=not args.no_monitor_memory
+		)
 
 	for opt in opt_tasks:
 		try:

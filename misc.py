@@ -143,13 +143,22 @@ def load_cifar(num_train=50000, num_val=2048):
 	"""
 	Loads a subset of the CIFAR dataset and returns it as a tuple.
 	"""
-	transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5),(0.5, 0.5, 0.5))])
+	transform = transforms.Compose([
+		transforms.ToTensor(),
+		transforms.Normalize((0.5, 0.5, 0.5),(0.5, 0.5, 0.5))
+	])
 
 	train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 	val_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 
-	train_dataset, _ = torch.utils.data.random_split(train_dataset, lengths=[num_train, len(train_dataset)-num_train])
-	val_dataset, _ = torch.utils.data.random_split(val_dataset, lengths=[num_val, len(val_dataset)-num_val])
+	# Use random_split with generator for reproducibility 
+	generator = torch.Generator().manual_seed(42)
+	train_dataset, _ = torch.utils.data.random_split(train_dataset, 
+												   lengths=[num_train, len(train_dataset)-num_train],
+												   generator=generator)
+	val_dataset, _ = torch.utils.data.random_split(val_dataset, 
+												 lengths=[num_val, len(val_dataset)-num_val],
+												 generator=generator)
 
 	return train_dataset, val_dataset
 
